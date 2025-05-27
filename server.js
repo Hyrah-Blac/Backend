@@ -47,6 +47,7 @@ const corsOptions = {
   allowedHeaders: ["Content-Type", "Authorization"],
 };
 
+// Apply CORS globally before routes
 app.use(cors(corsOptions));
 app.options("*", cors(corsOptions));
 
