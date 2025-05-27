@@ -27,16 +27,15 @@ const PORT = process.env.PORT || 5000;
    ✅ CORS Configuration
 ================================ */
 const allowedOrigins = [
-  "https://shopstore-u8q8.onrender.com",        // Your deployed frontend on Render (update if needed)
-  "https://shopstore-j9nbt3pce-hyrahs-projects.vercel.app", // Your Vercel frontend domain (add this!)
-  "http://localhost:5173",                      // Local development
-  "http://localhost:3000",                      // Another common local dev port
+  "https://shopstore-u8q8.onrender.com",              // Your deployed frontend on Render (if any)
+  "https://shopstore-j9nbt3pce-hyrahs-projects.vercel.app", // Your Vercel frontend domain
+  "http://localhost:5173",                            // Local dev
+  "http://localhost:3000",
 ];
 
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (like curl, Postman)
-    if (!origin) return callback(null, true);
+    if (!origin) return callback(null, true); // allow non-browser requests like Postman
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -48,10 +47,7 @@ const corsOptions = {
   allowedHeaders: ["Content-Type", "Authorization"],
 };
 
-// Apply CORS middleware once globally
 app.use(cors(corsOptions));
-
-// Handle preflight OPTIONS requests for all routes
 app.options("*", cors(corsOptions));
 
 /* ================================
@@ -66,7 +62,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// Static file serving for assets
+// Static file serving for assets (images, etc)
 const assetsPath = path.join(__dirname, "public", "assets");
 app.use("/assets", express.static(assetsPath));
 console.log("🖼️ Serving static files from:", assetsPath);
@@ -86,16 +82,6 @@ app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/contact", contactRoutes);
 app.use("/api/admin", adminRoutes);
-
-/* ================================
-   🚀 Frontend SPA fallback
-================================ */
-const distPath = path.join(__dirname, "..", "dist");
-app.use(express.static(distPath));
-
-app.get("*", (req, res) => {
-  res.sendFile(path.resolve(distPath, "index.html"));
-});
 
 /* ================================
    🚀 Start Server
