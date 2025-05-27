@@ -27,13 +27,17 @@ const PORT = process.env.PORT || 5000;
    ✅ CORS Configuration
 ================================ */
 const allowedOrigins = [
-  "https://shopstore-u8q8.onrender.com", // ✅ Frontend domain
-  "http://localhost:5173",               // ✅ Local dev
+  "https://shopstore-u8q8.onrender.com",        // Your deployed frontend on Render (update if needed)
+  "https://shopstore-j9nbt3pce-hyrahs-projects.vercel.app", // Your Vercel frontend domain (add this!)
+  "http://localhost:5173",                      // Local development
+  "http://localhost:3000",                      // Another common local dev port
 ];
 
 const corsOptions = {
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
+    // Allow requests with no origin (like curl, Postman)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       callback(new Error("CORS policy: This origin is not allowed"));
@@ -44,23 +48,11 @@ const corsOptions = {
   allowedHeaders: ["Content-Type", "Authorization"],
 };
 
-// ✅ Apply CORS before anything else
+// Apply CORS middleware once globally
 app.use(cors(corsOptions));
 
-// ✅ Handle preflight requests
+// Handle preflight OPTIONS requests for all routes
 app.options("*", cors(corsOptions));
-
-// ✅ Manual CORS headers (especially for Render)
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  if (allowedOrigins.includes(origin)) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-  }
-  res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
-  res.header("Access-Control-Allow-Headers", "Content-Type,Authorization");
-  res.header("Access-Control-Allow-Credentials", "true");
-  next();
-});
 
 /* ================================
    🚀 Middleware
@@ -74,7 +66,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// Static file serving
+// Static file serving for assets
 const assetsPath = path.join(__dirname, "public", "assets");
 app.use("/assets", express.static(assetsPath));
 console.log("🖼️ Serving static files from:", assetsPath);
