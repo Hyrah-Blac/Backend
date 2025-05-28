@@ -29,17 +29,15 @@ const PORT = process.env.PORT || 5000;
 const allowedOrigins = [
   "https://shopstore-mdoo5f1sq-hyrahs-projects.vercel.app",
   "https://shopstore-sooty.vercel.app",
-  "https://shopstore-git-main-hyrahs-projects.vercel.app"
+  "https://shopstore-git-main-hyrahs-projects.vercel.app",
 ];
 
 const corsOptions = {
   origin: function (origin, callback) {
-    if (!origin) return callback(null, true); // Allow Postman & server-to-server
-
+    if (!origin) return callback(null, true); // Allow Postman, curl, server-to-server
     const isAllowed =
       allowedOrigins.includes(origin) ||
-      /^https:\/\/shopstore.*\.vercel\.app$/.test(origin); // wildcard for Vercel previews
-
+      /^https:\/\/shopstore.*\.vercel\.app$/.test(origin);
     if (isAllowed) {
       callback(null, true);
     } else {
@@ -53,7 +51,7 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.options("*", cors(corsOptions)); // Pre-flight support for all routes
+app.options("*", cors(corsOptions)); // Pre-flight
 
 /* ================================
    🚀 Middleware
@@ -68,6 +66,7 @@ app.use((req, res, next) => {
 
 /* ================================
    🖼️ Static File Serving
+   ✅ Ensure this path serves images correctly
 ================================ */
 const assetsPath = path.join(__dirname, "public", "assets");
 app.use("/assets", express.static(assetsPath));
@@ -88,6 +87,15 @@ app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/contact", contactRoutes);
 app.use("/api/admin", adminRoutes);
+
+/* ================================
+   ✅ Catch-All (Optional for SPA hosting)
+================================ */
+// import { readFileSync } from "fs";
+// const indexHtml = readFileSync(path.join(__dirname, "public", "index.html"), "utf8");
+// app.get("*", (req, res) => {
+//   res.send(indexHtml);
+// });
 
 /* ================================
    🚀 Start Server
