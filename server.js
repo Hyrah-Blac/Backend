@@ -28,13 +28,19 @@ const PORT = process.env.PORT || 5000;
 ================================ */
 const allowedOrigins = [
   "https://shopstore-dx0mli1kl-hyrahs-projects.vercel.app",
-  "https://shopstore-sooty.vercel.app"
+  "https://shopstore-sooty.vercel.app",
+  "https://shopstore-git-main-hyrahs-projects.vercel.app"
 ];
 
 const corsOptions = {
   origin: function (origin, callback) {
-    if (!origin) return callback(null, true); // Allow non-browser tools
-    if (allowedOrigins.includes(origin)) {
+    if (!origin) return callback(null, true); // Allow Postman & tools
+
+    const isAllowed =
+      allowedOrigins.includes(origin) ||
+      /^https:\/\/shopstore.*\.vercel\.app$/.test(origin); // ✅ wildcard for Vercel previews
+
+    if (isAllowed) {
       callback(null, true);
     } else {
       console.error("❌ CORS blocked origin:", origin);
@@ -47,7 +53,7 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.options("*", cors(corsOptions)); // Pre-flight support
+app.options("*", cors(corsOptions)); // Pre-flight for all routes
 
 /* ================================
    🚀 Middleware
