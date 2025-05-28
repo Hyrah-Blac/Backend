@@ -27,15 +27,12 @@ const PORT = process.env.PORT || 5000;
    ✅ CORS Configuration
 ================================ */
 const allowedOrigins = [
-  "http://localhost:5173",
-  "http://localhost:3000",
-  "https://shopstore-sooty.vercel.app",         // ✅ Your actual deployed Vercel frontend
-  "https://shopstore-u8q8.onrender.com",        // Optional: if frontend hosted on Render
+  "https://shopstore-dx0mli1kl-hyrahs-projects.vercel.app" // ✅ Only your actual deployed frontend
 ];
 
 const corsOptions = {
   origin: function (origin, callback) {
-    if (!origin) return callback(null, true); // Allow Postman, curl, etc.
+    if (!origin) return callback(null, true); // Allow tools like Postman
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -49,7 +46,7 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.options("*", cors(corsOptions)); // Pre-flight
+app.options("*", cors(corsOptions)); // Pre-flight support
 
 /* ================================
    🚀 Middleware
