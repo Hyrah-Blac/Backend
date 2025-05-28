@@ -34,11 +34,11 @@ const allowedOrigins = [
 
 const corsOptions = {
   origin: function (origin, callback) {
-    if (!origin) return callback(null, true); // Allow Postman & tools
+    if (!origin) return callback(null, true); // Allow Postman & server-to-server
 
     const isAllowed =
       allowedOrigins.includes(origin) ||
-      /^https:\/\/shopstore.*\.vercel\.app$/.test(origin); // ✅ wildcard for Vercel previews
+      /^https:\/\/shopstore.*\.vercel\.app$/.test(origin); // wildcard for Vercel previews
 
     if (isAllowed) {
       callback(null, true);
@@ -53,7 +53,7 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.options("*", cors(corsOptions)); // Pre-flight for all routes
+app.options("*", cors(corsOptions)); // Pre-flight support for all routes
 
 /* ================================
    🚀 Middleware
