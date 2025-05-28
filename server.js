@@ -27,7 +27,7 @@ const PORT = process.env.PORT || 5000;
    ✅ CORS Configuration
 ================================ */
 const allowedOrigins = [
-  "https://shopstore-dx0mli1kl-hyrahs-projects.vercel.app",
+  "https://shopstore-mdoo5f1sq-hyrahs-projects.vercel.app",
   "https://shopstore-sooty.vercel.app",
   "https://shopstore-git-main-hyrahs-projects.vercel.app"
 ];
