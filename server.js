@@ -27,12 +27,13 @@ const PORT = process.env.PORT || 5000;
    ✅ CORS Configuration
 ================================ */
 const allowedOrigins = [
-  "https://shopstore-dx0mli1kl-hyrahs-projects.vercel.app" // ✅ Only your actual deployed frontend
+  "https://shopstore-dx0mli1kl-hyrahs-projects.vercel.app",
+  "https://shopstore-sooty.vercel.app"
 ];
 
 const corsOptions = {
   origin: function (origin, callback) {
-    if (!origin) return callback(null, true); // Allow tools like Postman
+    if (!origin) return callback(null, true); // Allow non-browser tools
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -54,7 +55,6 @@ app.options("*", cors(corsOptions)); // Pre-flight support
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-// Log requests
 app.use((req, res, next) => {
   console.log(`📥 ${req.method} ${req.path}`);
   next();
