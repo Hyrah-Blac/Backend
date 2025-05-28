@@ -27,18 +27,19 @@ const PORT = process.env.PORT || 5000;
    ✅ CORS Configuration
 ================================ */
 const allowedOrigins = [
-  "https://shopstore-u8q8.onrender.com",              // Your deployed frontend on Render (if any)
-  "https://shopstore-j9nbt3pce-hyrahs-projects.vercel.app", // Your Vercel frontend domain
-  "http://localhost:5173",                            // Local dev
+  "http://localhost:5173",
   "http://localhost:3000",
+  "https://shopstore-sooty.vercel.app",         // ✅ Your actual deployed Vercel frontend
+  "https://shopstore-u8q8.onrender.com",        // Optional: if frontend hosted on Render
 ];
 
 const corsOptions = {
   origin: function (origin, callback) {
-    if (!origin) return callback(null, true); // allow non-browser requests like Postman
+    if (!origin) return callback(null, true); // Allow Postman, curl, etc.
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
+      console.error("❌ CORS blocked origin:", origin);
       callback(new Error("CORS policy: This origin is not allowed"));
     }
   },
@@ -47,9 +48,8 @@ const corsOptions = {
   allowedHeaders: ["Content-Type", "Authorization"],
 };
 
-// Apply CORS globally before routes
 app.use(cors(corsOptions));
-app.options("*", cors(corsOptions));
+app.options("*", cors(corsOptions)); // Pre-flight
 
 /* ================================
    🚀 Middleware
@@ -57,13 +57,15 @@ app.options("*", cors(corsOptions));
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-// Request logger
+// Log requests
 app.use((req, res, next) => {
   console.log(`📥 ${req.method} ${req.path}`);
   next();
 });
 
-// Static file serving for assets (images, etc)
+/* ================================
+   🖼️ Static File Serving
+================================ */
 const assetsPath = path.join(__dirname, "public", "assets");
 app.use("/assets", express.static(assetsPath));
 console.log("🖼️ Serving static files from:", assetsPath);
@@ -77,7 +79,7 @@ mongoose
   .catch((err) => console.error("❌ MongoDB connection error:", err.message));
 
 /* ================================
-   🚀 API Routes
+   🚀 Routes
 ================================ */
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
