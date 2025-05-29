@@ -14,6 +14,10 @@ const __dirname = path.dirname(__filename);
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadPath = path.join(__dirname, "..", "public", "assets");
+
+    // ✅ Ensure the directory exists
+    fs.mkdirSync(uploadPath, { recursive: true });
+
     cb(null, uploadPath);
   },
   filename: (req, file, cb) => {
@@ -134,7 +138,6 @@ router.delete("/:id", async (req, res) => {
     }
 
     // Delete image from filesystem
-    // Remove leading slash from imageUrl for path resolve
     const imageUrlPath = product.imageUrl.startsWith("/")
       ? product.imageUrl.slice(1)
       : product.imageUrl;
