@@ -10,14 +10,11 @@ const router = express.Router();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Set up multer storage
+// Multer storage config
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadPath = path.join(__dirname, "..", "public", "assets");
-
-    // ✅ Ensure the directory exists
     fs.mkdirSync(uploadPath, { recursive: true });
-
     cb(null, uploadPath);
   },
   filename: (req, file, cb) => {
@@ -27,9 +24,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-/* ================================
-   🚀 POST: Add a New Product
-================================ */
+/* === POST: Add Product === */
 router.post("/", upload.single("image"), async (req, res) => {
   try {
     const { name, description, price } = req.body;
@@ -65,89 +60,64 @@ router.post("/", upload.single("image"), async (req, res) => {
   }
 });
 
-/* ================================
-   🚀 GET: Fetch All Products
-================================ */
+/* === GET: All Products === */
 router.get("/", async (req, res) => {
   try {
     const products = await Product.find();
     res.status(200).json(products);
   } catch (error) {
-    console.error("Error fetching products:", error);
+    console.error("❌ Error fetching products:", error);
     res.status(500).json({ message: "Failed to fetch products" });
   }
 });
 
-/* ================================
-   🚀 GET: Fetch Single Product by ID
-================================ */
+/* === GET: Single Product by ID === */
 router.get("/:id", async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
-    if (!product) {
-      return res.status(404).json({ message: "Product not found" });
-    }
+    if (!product) return res.status(404).json({ message: "Product not found" });
     res.status(200).json(product);
   } catch (error) {
-    console.error("Error fetching product:", error);
+    console.error("❌ Error fetching product:", error);
     res.status(500).json({ message: "Failed to fetch product" });
   }
 });
 
-/* ================================
-   🚀 PUT: Update Product Price by ID
-================================ */
+/* === PUT: Update Product Price === */
 router.put("/:id", async (req, res) => {
   try {
     const { price } = req.body;
-    if (!price) {
-      return res.status(400).json({ message: "Price is required" });
-    }
 
     const priceNumber = parseFloat(price);
-    if (isNaN(priceNumber)) {
+    if (!price || isNaN(priceNumber)) {
       return res.status(400).json({ message: "Price must be a valid number." });
     }
 
-    const updatedProduct = await Product.findByIdAndUpdate(
+    const updated = await Product.findByIdAndUpdate(
       req.params.id,
       { price: priceNumber },
       { new: true }
     );
 
-    if (!updatedProduct) {
-      return res.status(404).json({ message: "Product not found" });
-    }
-
-    res.status(200).json({ message: "Product price updated", product: updatedProduct });
+    if (!updated) return res.status(404).json({ message: "Product not found" });
+    res.status(200).json({ message: "Product price updated", product: updated });
 
   } catch (error) {
-    console.error("❌ Error updating product price:", error);
+    console.error("❌ Error updating product:", error);
     res.status(500).json({ message: "Failed to update product price" });
   }
 });
 
-/* ================================
-   🚀 DELETE: Remove Product by ID
-================================ */
+/* === DELETE: Remove Product by ID === */
 router.delete("/:id", async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
-    if (!product) {
-      return res.status(404).json({ message: "Product not found" });
-    }
+    if (!product) return res.status(404).json({ message: "Product not found" });
 
-    // Delete image from filesystem
-    const imageUrlPath = product.imageUrl.startsWith("/")
-      ? product.imageUrl.slice(1)
-      : product.imageUrl;
+    // Delete image file
+    const imagePath = path.resolve(__dirname, "..", "public", product.imageUrl.replace(/^\/+/, ""));
+    if (fs.existsSync(imagePath)) fs.unlinkSync(imagePath);
 
-    const imagePath = path.resolve(__dirname, "..", "public", imageUrlPath);
-    if (fs.existsSync(imagePath)) {
-      fs.unlinkSync(imagePath);
-    }
-
-    // Delete product from DB
     await Product.findByIdAndDelete(req.params.id);
     res.status(200).json({ message: "Product deleted successfully" });
 
