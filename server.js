@@ -89,6 +89,13 @@ app.use("/api/contact", contactRoutes);
 app.use("/api/admin", adminRoutes);
 
 /* ================================
+   ✅ Health Check Route
+================================ */
+app.get("/health", (req, res) => {
+  res.status(200).send("OK");
+});
+
+/* ================================
    ✅ Catch-All (Optional for SPA hosting)
 ================================ */
 // import { readFileSync } from "fs";
