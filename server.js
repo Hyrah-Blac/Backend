@@ -34,10 +34,14 @@ const allowedOrigins = [
 
 const corsOptions = {
   origin: function (origin, callback) {
-    if (!origin) return callback(null, true); // Allow Postman, curl, server-to-server
+    if (!origin) {
+      // Allow requests with no origin (like Postman, curl)
+      return callback(null, true);
+    }
     const isAllowed =
       allowedOrigins.includes(origin) ||
       /^https:\/\/shopstore.*\.vercel\.app$/.test(origin);
+
     if (isAllowed) {
       callback(null, true);
     } else {
@@ -50,8 +54,11 @@ const corsOptions = {
   allowedHeaders: ["Content-Type", "Authorization"],
 };
 
+// Use CORS middleware globally *before* routes
 app.use(cors(corsOptions));
-app.options("*", cors(corsOptions)); // Pre-flight
+
+// Enable preflight across all routes
+app.options("*", cors(corsOptions));
 
 /* ================================
    🚀 Middleware
@@ -59,6 +66,7 @@ app.options("*", cors(corsOptions)); // Pre-flight
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
+// Logging middleware
 app.use((req, res, next) => {
   console.log(`📥 ${req.method} ${req.path}`);
   next();
@@ -66,7 +74,6 @@ app.use((req, res, next) => {
 
 /* ================================
    🖼️ Static File Serving
-   ✅ Ensure this path serves images correctly
 ================================ */
 const assetsPath = path.join(__dirname, "public", "assets");
 app.use("/assets", express.static(assetsPath));
@@ -94,15 +101,6 @@ app.use("/api/admin", adminRoutes);
 app.get("/health", (req, res) => {
   res.status(200).send("OK");
 });
-
-/* ================================
-   ✅ Catch-All (Optional for SPA hosting)
-================================ */
-// import { readFileSync } from "fs";
-// const indexHtml = readFileSync(path.join(__dirname, "public", "index.html"), "utf8");
-// app.get("*", (req, res) => {
-//   res.send(indexHtml);
-// });
 
 /* ================================
    🚀 Start Server
