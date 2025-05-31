@@ -12,7 +12,6 @@ const __dirname = path.dirname(__filename);
 
 // Load environment variables
 dotenv.config({ path: path.join(__dirname, ".env") });
-
 console.log("📦 Loaded MONGODB_URI:", process.env.MONGODB_URI);
 console.log("📦 Loaded PORT:", process.env.PORT);
 
@@ -35,7 +34,7 @@ const allowedOrigins = [
 
 const corsOptions = {
   origin: function (origin, callback) {
-    if (!origin) return callback(null, true); // Allow Postman, curl, server-to-server requests without origin
+    if (!origin) return callback(null, true); // Allow Postman, curl, server-to-server
     const isAllowed =
       allowedOrigins.includes(origin) ||
       /^https:\/\/shopstore.*\.vercel\.app$/.test(origin);
@@ -52,7 +51,7 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.options("*", cors(corsOptions)); // Pre-flight OPTIONS requests
+app.options("*", cors(corsOptions)); // Pre-flight
 
 /* ================================
    🚀 Middleware
@@ -60,7 +59,6 @@ app.options("*", cors(corsOptions)); // Pre-flight OPTIONS requests
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-// Simple logger middleware for incoming requests
 app.use((req, res, next) => {
   console.log(`📥 ${req.method} ${req.path}`);
   next();
@@ -68,6 +66,7 @@ app.use((req, res, next) => {
 
 /* ================================
    🖼️ Static File Serving
+   ✅ Ensure this path serves images correctly
 ================================ */
 const assetsPath = path.join(__dirname, "public", "assets");
 app.use("/assets", express.static(assetsPath));
@@ -77,10 +76,7 @@ console.log("🖼️ Serving static files from:", assetsPath);
    🚀 MongoDB Connection
 ================================ */
 mongoose
-  .connect(process.env.MONGODB_URI, { 
-    useNewUrlParser: true, 
-    useUnifiedTopology: true 
-  })
+  .connect(process.env.MONGODB_URI)
   .then(() => console.log("✅ MongoDB connected successfully."))
   .catch((err) => console.error("❌ MongoDB connection error:", err.message));
 
@@ -100,9 +96,8 @@ app.get("/health", (req, res) => {
 });
 
 /* ================================
-   ✅ Catch-All for SPA (Optional)
+   ✅ Catch-All (Optional for SPA hosting)
 ================================ */
-// Uncomment if serving SPA from backend:
 // import { readFileSync } from "fs";
 // const indexHtml = readFileSync(path.join(__dirname, "public", "index.html"), "utf8");
 // app.get("*", (req, res) => {
