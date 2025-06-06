@@ -37,10 +37,10 @@ router.post('/', async (req, res) => {
   }
 });
 
-// NEW: GET /api/orders — Fetch all orders
+// GET /api/orders — Fetch all orders
 router.get('/', async (req, res) => {
   try {
-    const orders = await Order.find().populate('user'); // add .populate if user is ref
+    const orders = await Order.find().populate('user'); // optional populate
     res.status(200).json(orders);
   } catch (error) {
     console.error(error);
@@ -59,6 +59,33 @@ router.get('/:id', async (req, res) => {
     }
 
     res.status(200).json(order);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// ✅ PUT /api/orders/:id/status — Update delivery status
+router.put('/:id/status', async (req, res) => {
+  try {
+    const orderId = req.params.id;
+    const { status } = req.body;
+
+    if (!status) {
+      return res.status(400).json({ error: 'Status is required' });
+    }
+
+    const updatedOrder = await Order.findByIdAndUpdate(
+      orderId,
+      { status },
+      { new: true }
+    );
+
+    if (!updatedOrder) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    res.status(200).json({ message: 'Status updated', order: updatedOrder });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Server error' });
