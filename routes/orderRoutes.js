@@ -3,6 +3,7 @@ import Order from "../models/Order.js";
 
 const router = express.Router();
 
+
 // POST /api/orders - create new order
 router.post("/", async (req, res) => {
   try {
@@ -18,58 +19,10 @@ router.post("/", async (req, res) => {
       status: status || "Packaging",
     });
 
-    await order.save();
-    res.status(201).json({ message: "Order placed successfully", order });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Server error" });
-  }
-});
+    const savedOrder = await order.save();
 
-// GET /api/orders - get all orders (Admin)
-router.get("/", async (req, res) => {
-  try {
-    const orders = await Order.find().sort({ createdAt: -1 });
-    res.json(orders);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Server error" });
-  }
-});
-
-// PUT /api/orders/:id/status - update order status
-router.put("/:id/status", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { status } = req.body;
-    if (!["Packaging", "InTransit", "Delivered"].includes(status)) {
-      return res.status(400).json({ error: "Invalid status value" });
-    }
-
-    const order = await Order.findById(id);
-    if (!order) {
-      return res.status(404).json({ error: "Order not found" });
-    }
-
-    order.status = status;
-    await order.save();
-
-    res.json({ message: "Order status updated", order });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Server error" });
-  }
-});
-
-// DELETE /api/orders/:id - delete order by ID (Admin)
-router.delete("/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const deletedOrder = await Order.findByIdAndDelete(id);
-    if (!deletedOrder) {
-      return res.status(404).json({ error: "Order not found" });
-    }
-    res.json({ message: "Order deleted successfully" });
+    // ✅ Return just the order ID to frontend
+    res.status(201).json({ message: "Order placed successfully", orderId: savedOrder._id });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Server error" });
