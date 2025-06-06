@@ -61,6 +61,21 @@ router.put("/:id/status", async (req, res) => {
   }
 });
 
+// DELETE /api/orders/:id - delete order by ID (Admin)
+router.delete("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedOrder = await Order.findByIdAndDelete(id);
+    if (!deletedOrder) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+    res.json({ message: "Order deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
 // Optional: GET /api/orders/user/:phone - get orders by user phone
 router.get("/user/:phone", async (req, res) => {
   try {
