@@ -13,7 +13,6 @@ const __dirname = path.dirname(__filename);
 // Load environment variables explicitly from .env
 dotenv.config({ path: path.join(__dirname, ".env") });
 
-// Logging loaded env vars for debug (remove in production)
 console.log("📦 Loaded MONGODB_URI:", process.env.MONGODB_URI);
 console.log("📦 Loaded PORT:", process.env.PORT);
 
@@ -21,6 +20,7 @@ import authRoutes from "./routes/authRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import contactRoutes from "./routes/contactRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
+import orderRoutes from "./routes/orderRoutes.js"; // ✅ Import order routes
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -36,12 +36,8 @@ const allowedOrigins = [
 
 const corsOptions = {
   origin: (origin, callback) => {
-    if (!origin) {
-      // Allow requests with no origin (Postman, curl, server-to-server)
-      return callback(null, true);
-    }
+    if (!origin) return callback(null, true);
 
-    // Allow explicit domains or subdomains matching pattern
     const isAllowed =
       allowedOrigins.includes(origin) ||
       /^https:\/\/shopstore.*\.vercel\.app$/.test(origin);
@@ -58,10 +54,7 @@ const corsOptions = {
   allowedHeaders: ["Content-Type", "Authorization"],
 };
 
-// Use CORS middleware globally before routes
 app.use(cors(corsOptions));
-
-// Enable preflight OPTIONS requests for all routes
 app.options("*", cors(corsOptions));
 
 /* ================================
@@ -70,7 +63,6 @@ app.options("*", cors(corsOptions));
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-// Logging middleware for all requests
 app.use((req, res, next) => {
   console.log(`📥 ${req.method} ${req.path}`);
   next();
@@ -98,6 +90,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/contact", contactRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/orders", orderRoutes); // ✅ Add order routes
 
 /* ================================
    ✅ Health Check Route
