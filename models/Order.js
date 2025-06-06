@@ -1,35 +1,37 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
+import { v4 as uuidv4 } from 'uuid';
 
 const productSchema = new mongoose.Schema({
-  id: { type: String, required: true },
-  name: { type: String, default: "Unnamed Product" },
-  image: { type: String, default: "/placeholder.png" },
-  price: { type: Number, required: true },
-  quantity: { type: Number, default: 1 },
-});
-
-const userSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  phone: { type: String, required: true },
-  address: { type: String, required: true },
-  lat: { type: Number, required: true },
-  lng: { type: Number, required: true },
+  id: {
+    type: String,
+    default: uuidv4, // Auto-generate unique ID
+  },
+  name: String,
+  image: String,
+  price: Number,
+  quantity: Number,
 });
 
 const orderSchema = new mongoose.Schema(
   {
-    user: { type: userSchema, required: true },
-    products: { type: [productSchema], required: true },
-    totalAmount: { type: Number, required: true },
+    user: {
+      name: String,
+      phone: String,
+      address: String,
+      lat: Number,
+      lng: Number,
+    },
+    products: [productSchema],
+    totalAmount: Number,
     status: {
       type: String,
-      enum: ["Packaging", "In Transit", "Delivered"],
-      default: "Packaging",
+      enum: ['Packaging', 'InTransit', 'Delivered'],
+      default: 'Packaging',
     },
   },
-  { timestamps: true } // Adds createdAt and updatedAt automatically
+  { timestamps: true }
 );
 
-const Order = mongoose.model("Order", orderSchema);
+const Order = mongoose.model('Order', orderSchema);
 
 export default Order;

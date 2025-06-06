@@ -1,43 +1,35 @@
-import express from "express";
-import Order from "../models/Order.js";
+import express from 'express';
+import Order from '../models/Order.js';
+import { v4 as uuidv4 } from 'uuid';
 
 const router = express.Router();
 
-
-// POST /api/orders - create new order
-router.post("/", async (req, res) => {
+router.post('/', async (req, res) => {
   try {
-    const { user, products, totalAmount, status } = req.body;
+    const { user, products, totalAmount } = req.body;
+
     if (!user || !products || products.length === 0 || !totalAmount) {
-      return res.status(400).json({ error: "Missing required fields" });
+      return res.status(400).json({ error: 'Missing required fields' });
     }
+
+    // Assign unique IDs to each product
+    const productsWithIds = products.map((product) => ({
+      ...product,
+      id: uuidv4(),
+    }));
 
     const order = new Order({
       user,
-      products,
+      products: productsWithIds,
       totalAmount,
-      status: status || "Packaging",
     });
 
-    const savedOrder = await order.save();
+    await order.save();
 
-    // ✅ Return just the order ID to frontend
-    res.status(201).json({ message: "Order placed successfully", orderId: savedOrder._id });
+    res.status(201).json({ message: 'Order placed successfully', order });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Server error" });
-  }
-});
-
-// Optional: GET /api/orders/user/:phone - get orders by user phone
-router.get("/user/:phone", async (req, res) => {
-  try {
-    const { phone } = req.params;
-    const orders = await Order.find({ "user.phone": phone }).sort({ createdAt: -1 });
-    res.json(orders);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Server error" });
+    res.status(500).json({ error: 'Server error' });
   }
 });
 
