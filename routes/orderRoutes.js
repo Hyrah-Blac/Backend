@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 const router = express.Router();
 
+// POST /api/orders — create new order
 router.post('/', async (req, res) => {
   try {
     const { user, products, totalAmount } = req.body;
@@ -24,9 +25,12 @@ router.post('/', async (req, res) => {
       totalAmount,
     });
 
-    await order.save();
+    const savedOrder = await order.save();
 
-    res.status(201).json({ message: 'Order placed successfully', order });
+    // Return only the new order's ID
+    res
+      .status(201)
+      .json({ message: 'Order placed successfully', orderId: savedOrder._id });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Server error' });
