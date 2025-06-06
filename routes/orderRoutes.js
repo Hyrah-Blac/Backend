@@ -27,7 +27,6 @@ router.post('/', async (req, res) => {
 
     const savedOrder = await order.save();
 
-    // Return only the new order's ID
     res.status(201).json({
       message: 'Order placed successfully',
       orderId: savedOrder._id,
@@ -38,7 +37,18 @@ router.post('/', async (req, res) => {
   }
 });
 
-// ✅ NEW: GET /api/orders/:id — Fetch a specific order by ID
+// NEW: GET /api/orders — Fetch all orders
+router.get('/', async (req, res) => {
+  try {
+    const orders = await Order.find().populate('user'); // add .populate if user is ref
+    res.status(200).json(orders);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// GET /api/orders/:id — Fetch a specific order by ID
 router.get('/:id', async (req, res) => {
   try {
     const orderId = req.params.id;
