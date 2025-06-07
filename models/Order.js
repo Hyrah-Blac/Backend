@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 const productSchema = new mongoose.Schema({
   id: {
     type: String,
-    default: uuidv4, // Auto-generate unique ID
+    default: uuidv4, // Auto-generate unique ID for each product in order
   },
   name: String,
   image: String,
@@ -12,14 +12,23 @@ const productSchema = new mongoose.Schema({
   quantity: Number,
 });
 
+const userSchema = new mongoose.Schema({
+  _id: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+  },
+  name: String,
+  phone: String,
+  address: String,
+  lat: Number,
+  lng: Number,
+});
+
 const orderSchema = new mongoose.Schema(
   {
     user: {
-      name: String,
-      phone: String,
-      address: String,
-      lat: Number,
-      lng: Number,
+      type: userSchema,
+      required: true,
     },
     products: [productSchema],
     totalAmount: Number,

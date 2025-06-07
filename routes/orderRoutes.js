@@ -10,17 +10,33 @@ router.post('/', async (req, res) => {
   try {
     const { user, products, totalAmount } = req.body;
 
-    if (!user || !products || products.length === 0 || !totalAmount) {
+    if (
+      !user ||
+      !user._id || // Make sure user._id is sent
+      !products ||
+      products.length === 0 ||
+      !totalAmount
+    ) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
+    // Assign unique ids to products (if they don't have one)
     const productsWithIds = products.map((product) => ({
-      ...product,
-      id: uuidv4(),
+      id: product.id || uuidv4(),
+      name: product.name,
+      image: product.image,
+      price: product.price,
+      quantity: product.quantity,
     }));
 
+    // Convert user._id string to mongoose ObjectId
+    const userWithObjectId = {
+      ...user,
+      _id: new mongoose.Types.ObjectId(user._id),
+    };
+
     const order = new Order({
-      user,
+      user: userWithObjectId,
       products: productsWithIds,
       totalAmount,
     });
@@ -32,7 +48,7 @@ router.post('/', async (req, res) => {
       orderId: savedOrder._id,
     });
   } catch (error) {
-    console.error(error);
+    console.error('Order creation error:', error);
     res.status(500).json({ error: 'Server error' });
   }
 });
@@ -60,7 +76,7 @@ router.get('/user/:userId', async (req, res) => {
 // Get all orders (admin)
 router.get('/', async (req, res) => {
   try {
-    const orders = await Order.find().populate('user');
+    const orders = await Order.find();
     res.status(200).json(orders);
   } catch (error) {
     console.error(error);
