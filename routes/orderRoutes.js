@@ -13,7 +13,6 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    // Assign unique IDs to each product
     const productsWithIds = products.map((product) => ({
       ...product,
       id: uuidv4(),
@@ -40,7 +39,7 @@ router.post('/', async (req, res) => {
 // GET /api/orders — Fetch all orders
 router.get('/', async (req, res) => {
   try {
-    const orders = await Order.find().populate('user'); // optional populate
+    const orders = await Order.find().populate('user');
     res.status(200).json(orders);
   } catch (error) {
     console.error(error);
@@ -65,7 +64,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// ✅ PUT /api/orders/:id/status — Update delivery status
+// PUT /api/orders/:id/status — Update delivery status
 router.put('/:id/status', async (req, res) => {
   try {
     const orderId = req.params.id;
@@ -86,6 +85,24 @@ router.put('/:id/status', async (req, res) => {
     }
 
     res.status(200).json({ message: 'Status updated', order: updatedOrder });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// ✅ DELETE /api/orders/:id — Delete an order
+router.delete('/:id', async (req, res) => {
+  try {
+    const orderId = req.params.id;
+
+    const deletedOrder = await Order.findByIdAndDelete(orderId);
+
+    if (!deletedOrder) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    res.status(200).json({ message: 'Order deleted successfully' });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Server error' });
