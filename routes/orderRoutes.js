@@ -1,11 +1,11 @@
 import express from 'express';
-import mongoose from 'mongoose'; // ✅ Added this line
+import mongoose from 'mongoose';
 import Order from '../models/Order.js';
 import { v4 as uuidv4 } from 'uuid';
 
 const router = express.Router();
 
-// ✅ POST /api/orders — Create a new order
+// Create a new order
 router.post('/', async (req, res) => {
   try {
     const { user, products, totalAmount } = req.body;
@@ -37,13 +37,13 @@ router.post('/', async (req, res) => {
   }
 });
 
-// ✅ GET /api/orders/user/:userId — Fetch orders for a specific user
+// Get orders for a specific user
 router.get('/user/:userId', async (req, res) => {
   try {
     const { userId } = req.params;
 
     const userOrders = await Order.find({
-      'user._id': new mongoose.Types.ObjectId(userId), // ✅ Fixed here
+      'user._id': new mongoose.Types.ObjectId(userId),
     });
 
     if (!userOrders || userOrders.length === 0) {
@@ -57,7 +57,7 @@ router.get('/user/:userId', async (req, res) => {
   }
 });
 
-// GET /api/orders — Fetch all orders
+// Get all orders (admin)
 router.get('/', async (req, res) => {
   try {
     const orders = await Order.find().populate('user');
@@ -68,7 +68,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET /api/orders/:id — Fetch a specific order by ID
+// Get a specific order by ID
 router.get('/:id', async (req, res) => {
   try {
     const orderId = req.params.id;
@@ -85,7 +85,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// PUT /api/orders/:id/status — Update delivery status
+// Update delivery status
 router.put('/:id/status', async (req, res) => {
   try {
     const orderId = req.params.id;
@@ -112,7 +112,7 @@ router.put('/:id/status', async (req, res) => {
   }
 });
 
-// DELETE /api/orders/:id — Delete an order
+// Delete an order
 router.delete('/:id', async (req, res) => {
   try {
     const orderId = req.params.id;
