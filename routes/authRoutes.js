@@ -45,6 +45,12 @@ router.post("/signup", async (req, res) => {
       message: "User registered successfully",
       token,
       role: newUser.role,
+      user: {
+        _id: newUser._id,
+        name: newUser.name,
+        email: newUser.email,
+        role: newUser.role,
+      },
     });
   } catch (error) {
     console.error("🚨 Signup error:", error.message);
@@ -89,12 +95,19 @@ router.post("/login", async (req, res) => {
       message: "Login successful",
       token,
       role: user.role || "user",
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role || "user",
+      },
     });
   } catch (error) {
     console.error("🚨 Login error:", error.message);
     return res.status(500).json({ message: "Something went wrong", error: error.message });
   }
 });
+
 /* ================================
    👤 Get User Profile Route
 ================================ */
