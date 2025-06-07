@@ -1,4 +1,5 @@
 import express from 'express';
+import mongoose from 'mongoose'; // ✅ Added this line
 import Order from '../models/Order.js';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -41,7 +42,9 @@ router.get('/user/:userId', async (req, res) => {
   try {
     const { userId } = req.params;
 
-    const userOrders = await Order.find({ 'user._id': userId });
+    const userOrders = await Order.find({
+      'user._id': new mongoose.Types.ObjectId(userId), // ✅ Fixed here
+    });
 
     if (!userOrders || userOrders.length === 0) {
       return res.status(404).json({ message: 'No orders found for this user' });
