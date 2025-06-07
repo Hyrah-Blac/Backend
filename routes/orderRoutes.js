@@ -91,7 +91,7 @@ router.put('/:id/status', async (req, res) => {
   }
 });
 
-// ✅ DELETE /api/orders/:id — Delete an order
+// DELETE /api/orders/:id — Delete an order
 router.delete('/:id', async (req, res) => {
   try {
     const orderId = req.params.id;
@@ -106,6 +106,24 @@ router.delete('/:id', async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// ✅ GET /api/orders/user/:userId — Fetch orders for a specific user
+router.get('/user/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const userOrders = await Order.find({ 'user._id': userId });
+
+    if (!userOrders || userOrders.length === 0) {
+      return res.status(404).json({ message: 'No orders found for this user' });
+    }
+
+    res.status(200).json(userOrders);
+  } catch (error) {
+    console.error('Fetch user orders error:', error.message);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
